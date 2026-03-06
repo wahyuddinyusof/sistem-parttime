@@ -1091,7 +1091,7 @@
 
     <div class="modal-btns">
       <button class="btn-capture" id="btn-capture" onclick="capturePhoto()" disabled>
-        📷 Ambil Gambar
+        ✅ Sahkan & Punch
       </button>
       <button class="btn-cancel" onclick="closeCamera()">Batal</button>
     </div>
@@ -1482,16 +1482,15 @@
       return `
         <div class="history-item">
           <div class="history-dot ${outTime ? '' : 'out'}"></div>
-          <div>
+          <div style="flex:1">
             <div class="history-time">${rec.date || '—'}</div>
             <div class="history-detail">
               Masuk: ${inTime ? inTime.toLocaleTimeString('ms-MY', { hour12: false }) : '—'} &nbsp;|&nbsp;
               Keluar: ${outTime ? outTime.toLocaleTimeString('ms-MY', { hour12: false }) : '—'} &nbsp;|&nbsp;
               ${h}
             </div>
+            ${rec.punchInLat ? `<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px;">📍 ${rec.punchInLat.toFixed(5)}, ${rec.punchInLng.toFixed(5)}</div>` : ''}
           </div>
-          <div style="flex:1"></div>
-          ${rec.punchInPhoto ? `<img class="history-thumb" src="${rec.punchInPhoto}" onclick="viewImage('${rec.punchInPhoto}')" alt="selfie">` : ''}
         </div>`;
     }).join('');
   }
@@ -1600,48 +1599,12 @@
   };
 
   window.capturePhoto = function() {
-    const video = document.getElementById('camera-video');
-    const canvas = document.getElementById('camera-canvas');
-    const ctx = canvas.getContext('2d');
-
-    // Thumbnail kecil untuk simpan dalam Firestore (tanpa Storage)
-    canvas.width = 180;
-    canvas.height = 135;
-
-    // Mirror for selfie
-    ctx.save();
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-    ctx.restore();
-
-    // Overlay text
-    const now = new Date();
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 14px monospace';
-    ctx.fillText(now.toLocaleDateString('ms-MY') + ' ' + now.toLocaleTimeString('ms-MY', { hour12: false }), 10, canvas.height - 38);
-
-    ctx.fillStyle = '#06b6d4';
-    ctx.font = '12px monospace';
-    if (currentLocation) {
-      ctx.fillText(`📍 ${currentLocation.lat.toFixed(5)}, ${currentLocation.lng.toFixed(5)}`, 10, canvas.height - 18);
-    }
-
-    capturedImageData = canvas.toDataURL('image/jpeg', 0.4);
+    // Terus sahkan — tiada gambar disimpan, hanya timestamp + GPS
     closeCamera();
-    document.getElementById('preview-img').src = capturedImageData;
-    document.getElementById('modal-preview').classList.add('active');
-  };
-
-  window.retakePhoto = function() {
-    document.getElementById('modal-preview').classList.remove('active');
-    openCamera();
+    confirmPunch();
   };
 
   window.confirmPunch = async function() {
-    document.getElementById('modal-preview').classList.remove('active');
     showLoading('Menyimpan rekod...');
 
     try {
@@ -1650,8 +1613,7 @@
       const docId = `${currentWorker.id}_${today}`;
       const docRef = doc(db, 'attendance', docId);
 
-      // Simpan base64 terus dalam Firestore (tanpa Firebase Storage)
-      let photoUrl = capturedImageData || null;
+      // Simpan timestamp + GPS sahaja (tanpa gambar)
 
       const snap = await getDoc(docRef);
 
@@ -1662,9 +1624,9 @@
           workerSerial: currentWorker.serial,
           date: today,
           punchIn: Timestamp.fromDate(now),
-          punchInPhoto: photoUrl,
           punchInLat: currentLocation?.lat || null,
           punchInLng: currentLocation?.lng || null,
+          punchInAccuracy: currentLocation?.accuracy || null,
           createdAt: Timestamp.fromDate(now)
         }, { merge: true });
 
@@ -1679,9 +1641,9 @@
 
         await setDoc(docRef, {
           punchOut: Timestamp.fromDate(now),
-          punchOutPhoto: photoUrl,
           punchOutLat: currentLocation?.lat || null,
           punchOutLng: currentLocation?.lng || null,
+          punchOutAccuracy: currentLocation?.accuracy || null,
           totalMinutes: totalMinutes
         }, { merge: true });
 
