@@ -4,26 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PartTime Pro — Sistem Kehadiran</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --border: #1e2d45;
-    --accent: #3b82f6;
-    --accent2: #06b6d4;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --text: #f1f5f9;
-    --text2: #94a3b8;
-    --text3: #475569;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Plus Jakarta Sans', sans-serif;
+    --bg: #f5f4f0;
+    --bg2: #eceae3;
+    --surface: #ffffff;
+    --surface2: #f9f8f5;
+    --border: #e0ddd5;
+    --border2: #ccc9bf;
+    --accent: #e8b400;
+    --accent2: #c99e00;
+    --accent-light: #fff8dc;
+    --accent-pale: #fef9e7;
+    --success: #2d9e6b;
+    --success-light: #e8f5ef;
+    --danger: #d94f3d;
+    --danger-light: #fdecea;
+    --text: #1a1814;
+    --text2: #6b6760;
+    --text3: #9e9b94;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
     font-family: var(--sans);
@@ -33,895 +40,545 @@
     overflow-x: hidden;
   }
 
-  /* ─── BACKGROUND GRID ─── */
+  /* ── BG PATTERN ── */
   body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
+    content:'';
+    position:fixed; inset:0;
+    background-image: radial-gradient(circle, rgba(232,180,0,0.07) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events:none; z-index:0;
   }
 
-  /* ─── SCREENS ─── */
-  .screen {
-    display: none;
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-  }
-  .screen.active { display: flex; flex-direction: column; }
+  /* ── SCREENS ── */
+  .screen { display:none; position:relative; z-index:1; min-height:100vh; }
+  .screen.active { display:flex; flex-direction:column; }
 
-  /* ─── HEADER ─── */
+  /* ── HEADER ── */
   .header {
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    padding: 16px 24px;
+    display:flex; align-items:center; justify-content:space-between;
     border-bottom: 1px solid var(--border);
-    background: rgba(10,14,26,0.8);
+    background: rgba(245,244,240,0.92);
     backdrop-filter: blur(12px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    position:sticky; top:0; z-index:10;
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .logo { display:flex; align-items:center; gap:10px; }
 
   .logo-icon {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
+    width:38px; height:38px;
+    background: var(--accent);
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    animation: wiggle 3s ease-in-out infinite;
+    box-shadow: 0 3px 10px rgba(232,180,0,0.35);
   }
 
-  .logo-text {
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
+  @keyframes wiggle {
+    0%,100% { transform: rotate(-4deg); }
+    50% { transform: rotate(4deg); }
   }
 
-  .logo-text span { color: var(--accent2); }
+  .logo-text { font-size:17px; font-weight:800; letter-spacing:-0.5px; color:var(--text); }
+  .logo-text span { color:var(--accent2); }
 
-  .time-display {
+  .time-display { text-align:right; }
+  .time-big {
     font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text2);
-    text-align: right;
+    font-size:20px; font-weight:500;
+    color:var(--text); display:block;
+    letter-spacing:1px;
   }
+  .time-date { font-size:11px; color:var(--text2); margin-top:1px; }
 
-  .time-display .time-big {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text);
-    display: block;
+  /* ── HOME ── */
+  #screen-home { padding:0; }
+  .home-hero {
+    background: linear-gradient(135deg, var(--accent) 0%, #f5c800 100%);
+    padding: 28px 24px 32px;
+    position:relative; overflow:hidden;
   }
-
-  /* ─── HOME SCREEN ─── */
-  #screen-home {
-    padding: 32px 24px;
+  .home-hero::after {
+    content:'';
+    position:absolute; right:-30px; top:-30px;
+    width:160px; height:160px;
+    border-radius:50%;
+    background: rgba(255,255,255,0.12);
   }
+  .home-hero h2 { font-size:24px; font-weight:800; color:#1a1814; margin-bottom:4px; }
+  .home-hero p { font-size:13px; color:rgba(26,24,20,0.65); }
 
-  .home-title {
-    text-align: center;
-    margin-bottom: 8px;
-  }
+  .home-body { padding:20px 24px; flex:1; }
 
-  .home-title h2 {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .home-title p {
-    font-size: 13px;
-    color: var(--text2);
-    margin-top: 4px;
-  }
-
-  /* ─── WORKER GRID ─── */
   .workers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 16px;
-    margin-top: 28px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px,1fr));
+    gap:14px;
+    margin-top:4px;
   }
 
   .worker-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:18px;
+    padding:18px 10px;
+    display:flex; flex-direction:column; align-items:center; gap:9px;
+    cursor:pointer;
     transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .worker-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(59,130,246,0.05), transparent);
-    opacity: 0;
-    transition: opacity 0.2s;
+    box-shadow: var(--shadow);
   }
 
   .worker-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(59,130,246,0.15);
+    border-color:var(--accent);
+    transform:translateY(-3px);
+    box-shadow: 0 8px 24px rgba(232,180,0,0.2);
   }
 
-  .worker-card:hover::before { opacity: 1; }
+  .worker-card:active { transform:scale(0.96); }
 
   .worker-avatar {
-    width: 64px; height: 64px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    font-weight: 800;
-    color: white;
-    border: 2px solid var(--border);
-    position: relative;
+    width:62px; height:62px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:800; color:white;
+    border:2.5px solid white;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    position:relative;
   }
 
   .worker-status-dot {
-    position: absolute;
-    bottom: 2px; right: 2px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    border: 2px solid var(--surface);
-    background: var(--text3);
+    position:absolute; bottom:2px; right:2px;
+    width:14px; height:14px;
+    border-radius:50%;
+    border:2.5px solid white;
+    background:#ccc;
+  }
+  .worker-status-dot.punched-in {
+    background:var(--success);
+    animation: pulse-dot 2s infinite;
   }
 
-  .worker-status-dot.punched-in { background: var(--success); }
-
-  .worker-name {
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    color: var(--text);
-    line-height: 1.3;
+  @keyframes pulse-dot {
+    0%,100% { box-shadow:0 0 0 0 rgba(45,158,107,0.4); }
+    50% { box-shadow:0 0 0 5px rgba(45,158,107,0); }
   }
 
-  .worker-id {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text3);
-  }
+  .worker-name { font-size:12px; font-weight:600; text-align:center; color:var(--text); line-height:1.3; }
+  .worker-id { font-family:var(--mono); font-size:10px; color:var(--text3); }
 
-  /* ─── ADD WORKER BUTTON (admin shortcut) ─── */
+  .section-label {
+    font-size:11px; font-weight:700; text-transform:uppercase;
+    letter-spacing:1.2px; color:var(--text3);
+    margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── ADMIN FAB ── */
   .btn-admin {
-    position: fixed;
-    bottom: 24px; right: 24px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 14px 20px;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-    box-shadow: 0 8px 24px rgba(59,130,246,0.3);
-    transition: all 0.2s;
-    z-index: 20;
+    position:fixed; bottom:24px; right:24px;
+    background:var(--text);
+    color:white;
+    border:none; border-radius:50px;
+    padding:13px 20px;
+    font-family:var(--sans); font-size:13px; font-weight:700;
+    cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    transition:all 0.2s; z-index:20;
   }
+  .btn-admin:hover { transform:translateY(-2px); background:#333; }
 
-  .btn-admin:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(59,130,246,0.4); }
-
-  /* ─── PIN SCREEN ─── */
-  #screen-pin {
-    padding: 24px;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
+  /* ── PIN SCREEN ── */
+  #screen-pin { align-items:center; justify-content:center; padding:24px; }
 
   .pin-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 36px 28px;
-    width: 100%;
-    max-width: 360px;
-    text-align: center;
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:28px;
+    padding:36px 28px;
+    width:100%; max-width:360px;
+    text-align:center;
+    box-shadow:var(--shadow-md);
   }
 
   .pin-avatar {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-    font-weight: 800;
-    margin: 0 auto 16px;
-    border: 3px solid var(--border);
+    width:80px; height:80px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px; font-weight:800; color:white;
+    margin:0 auto 14px;
+    border:3px solid white;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   }
 
-  .pin-name {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
+  .pin-name { font-size:20px; font-weight:800; margin-bottom:4px; }
+  .pin-subtitle { font-size:12px; color:var(--text2); margin-bottom:24px; }
 
-  .pin-subtitle {
-    font-size: 12px;
-    color: var(--text2);
-    margin-bottom: 28px;
-  }
-
-  .pin-dots {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 28px;
-  }
+  .pin-dots { display:flex; justify-content:center; gap:12px; margin-bottom:24px; }
 
   .pin-dot {
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: transparent;
-    transition: all 0.15s;
+    width:16px; height:16px; border-radius:50%;
+    border:2px solid var(--border2);
+    background:transparent; transition:all 0.15s;
   }
-
-  .pin-dot.filled {
-    background: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(59,130,246,0.5);
-  }
-
-  .pin-dot.error {
-    background: var(--danger);
-    border-color: var(--danger);
-    animation: shake 0.3s ease;
-  }
+  .pin-dot.filled { background:var(--accent); border-color:var(--accent); box-shadow:0 0 10px rgba(232,180,0,0.5); }
+  .pin-dot.error { background:var(--danger); border-color:var(--danger); animation:shake 0.3s ease; }
 
   @keyframes shake {
-    0%,100% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
+    0%,100% { transform:translateX(0); }
+    25% { transform:translateX(-5px); }
+    75% { transform:translateX(5px); }
   }
 
-  .pin-keypad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
-  }
+  .pin-keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
 
   .pin-key {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-    font-family: var(--sans);
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.15s;
+    background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:14px; padding:17px;
+    font-family:var(--sans); font-size:20px; font-weight:700;
+    color:var(--text); cursor:pointer; transition:all 0.12s;
   }
+  .pin-key:hover { background:var(--bg2); border-color:var(--border2); }
+  .pin-key:active { transform:scale(0.92); background:var(--accent); border-color:var(--accent); color:white; }
+  .pin-key.del { font-size:15px; color:var(--text2); }
 
-  .pin-key:hover { background: var(--border); }
-  .pin-key:active { transform: scale(0.94); background: var(--accent); border-color: var(--accent); }
-
-  .pin-key.del {
-    font-size: 16px;
-    color: var(--text2);
-  }
-
-  .pin-error-msg {
-    font-size: 12px;
-    color: var(--danger);
-    min-height: 18px;
-    margin-top: 4px;
-  }
+  .pin-error-msg { font-size:12px; color:var(--danger); min-height:18px; margin-top:4px; }
 
   .btn-back {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text2);
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-family: var(--sans);
-    font-size: 13px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
-    transition: all 0.2s;
+    background:none; border:1.5px solid var(--border);
+    color:var(--text2); border-radius:12px;
+    padding:10px 20px; font-family:var(--sans); font-size:13px;
+    cursor:pointer; width:100%; margin-top:8px; transition:all 0.2s;
   }
+  .btn-back:hover { border-color:var(--text2); color:var(--text); }
 
-  .btn-back:hover { border-color: var(--text2); color: var(--text); }
-
-  /* ─── DASHBOARD SCREEN ─── */
-  #screen-dashboard {
-    padding: 0;
-  }
+  /* ── DASHBOARD ── */
+  #screen-dashboard { padding:0; }
 
   .dash-header {
-    padding: 20px 24px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    padding:18px 24px 14px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
   }
-
-  .dash-welcome {
-    font-size: 13px;
-    color: var(--text2);
-    margin-bottom: 2px;
-  }
-
-  .dash-name {
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 12px;
-  }
-
-  .dash-meta {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
+  .dash-welcome { font-size:12px; color:var(--text2); margin-bottom:2px; }
+  .dash-name { font-size:22px; font-weight:800; margin-bottom:10px; }
+  .dash-meta { display:flex; gap:10px; flex-wrap:wrap; }
 
   .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-family: var(--mono);
-    color: var(--text2);
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:8px; padding:4px 10px;
+    font-size:11px; font-family:var(--mono); color:var(--text2);
   }
+  .badge.active { border-color:var(--success); color:var(--success); background:var(--success-light); }
+  .badge.done { border-color:var(--border2); color:var(--text3); }
 
-  .badge.active { border-color: var(--success); color: var(--success); }
-  .badge.warning { border-color: var(--warning); color: var(--warning); }
+  .dash-content { padding:20px 24px; flex:1; overflow-y:auto; }
 
-  .dash-content {
-    padding: 20px 24px;
-    flex: 1;
-    overflow-y: auto;
-  }
-
-  /* ─── PUNCH CARD ─── */
+  /* ── PUNCH CARD ── */
   .punch-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
+    background:var(--surface);
+    border:1.5px solid var(--border);
+    border-radius:20px; padding:22px;
+    margin-bottom:18px;
+    box-shadow:var(--shadow);
+    position:relative; overflow:hidden;
   }
-
   .punch-card::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(59,130,246,0.1), transparent 70%);
+    content:''; position:absolute;
+    top:-30px; right:-30px;
+    width:100px; height:100px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,180,0,0.12), transparent 70%);
   }
 
-  .punch-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text3);
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
+  .punch-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text3); margin-bottom:6px; font-weight:600; }
+  .punch-status { font-size:26px; font-weight:800; margin-bottom:14px; }
+  .punch-status.in { color:var(--success); }
+  .punch-status.out { color:var(--text3); }
 
-  .punch-status {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 16px;
-  }
-
-  .punch-status.in { color: var(--success); }
-  .punch-status.out { color: var(--text2); }
-
-  .punch-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .punch-info-item {
-    background: var(--surface2);
-    border-radius: 10px;
-    padding: 10px 12px;
-  }
-
-  .punch-info-label {
-    font-size: 10px;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 3px;
-  }
-
-  .punch-info-value {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
+  .punch-info { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+  .punch-info-item { background:var(--surface2); border-radius:10px; padding:10px 12px; border:1px solid var(--border); }
+  .punch-info-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+  .punch-info-value { font-family:var(--mono); font-size:13px; font-weight:500; color:var(--text); }
 
   .btn-punch {
-    width: 100%;
-    padding: 16px;
-    border: none;
-    border-radius: 14px;
-    font-family: var(--sans);
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    width:100%; padding:15px; border:none; border-radius:14px;
+    font-family:var(--sans); font-size:15px; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:9px;
   }
+  .btn-punch.punch-in { background:var(--accent); color:var(--text); box-shadow:0 6px 18px rgba(232,180,0,0.35); }
+  .btn-punch.punch-out { background:var(--danger); color:white; box-shadow:0 6px 18px rgba(217,79,61,0.25); }
+  .btn-punch:hover:not(:disabled) { transform:translateY(-1px); filter:brightness(1.05); }
+  .btn-punch:active:not(:disabled) { transform:scale(0.98); }
+  .btn-punch:disabled { opacity:0.45; cursor:not-allowed; transform:none; filter:none; }
 
-  .btn-punch.punch-in {
-    background: linear-gradient(135deg, var(--success), #059669);
-    color: white;
-    box-shadow: 0 8px 20px rgba(16,185,129,0.3);
-  }
-
-  .btn-punch.punch-out {
-    background: linear-gradient(135deg, var(--danger), #dc2626);
-    color: white;
-    box-shadow: 0 8px 20px rgba(239,68,68,0.3);
-  }
-
-  .btn-punch:hover { transform: translateY(-1px); filter: brightness(1.05); }
-  .btn-punch:active { transform: scale(0.98); }
-  .btn-punch:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  /* ─── TODAY STATS ─── */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
+  /* ── STATS ── */
+  .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
   .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 12px;
-    text-align: center;
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:14px; padding:14px 10px; text-align:center;
+    box-shadow:var(--shadow);
   }
+  .stat-value { font-family:var(--mono); font-size:20px; font-weight:500; color:var(--accent2); display:block; }
+  .stat-label { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.5px; margin-top:3px; }
 
-  .stat-value {
-    font-family: var(--mono);
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--accent2);
-    display: block;
-  }
-
-  .stat-label {
-    font-size: 10px;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 4px;
-  }
-
-  /* ─── SECTION TITLE ─── */
-  .section-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text2);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* ─── HISTORY LIST ─── */
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-
+  /* ── HISTORY ── */
+  .history-list { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
   .history-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:13px; padding:12px 14px;
+    display:flex; align-items:flex-start; gap:10px;
+    box-shadow:var(--shadow);
   }
+  .history-dot { width:8px; height:8px; border-radius:50%; background:var(--success); flex-shrink:0; margin-top:4px; }
+  .history-dot.incomplete { background:var(--accent); }
+  .history-time { font-family:var(--mono); font-size:12px; font-weight:500; color:var(--text); margin-bottom:2px; }
+  .history-detail { font-size:12px; color:var(--text2); line-height:1.5; }
+  .history-coords { font-size:10px; color:var(--text3); font-family:var(--mono); margin-top:2px; }
 
-  .history-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--success);
-    flex-shrink: 0;
+  /* ── LOGOUT ── */
+  .btn-logout {
+    margin:8px 24px 24px;
+    padding:12px; background:none;
+    border:1.5px solid var(--border);
+    border-radius:12px; color:var(--text2);
+    font-family:var(--sans); font-size:13px;
+    cursor:pointer; width:calc(100% - 48px);
+    transition:all 0.2s;
   }
+  .btn-logout:hover { border-color:var(--danger); color:var(--danger); }
 
-  .history-dot.out { background: var(--danger); }
-
-  .history-time {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .history-detail {
-    flex: 1;
-    font-size: 12px;
-    color: var(--text2);
-  }
-
-  .history-thumb {
-    width: 40px; height: 40px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 1px solid var(--border);
-    cursor: pointer;
-  }
-
-  /* ─── CAMERA MODAL ─── */
+  /* ── CAMERA MODAL ── */
   .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.6); z-index:100;
+    align-items:center; justify-content:center; padding:16px;
   }
-
-  .modal-overlay.active { display: flex; }
+  .modal-overlay.active { display:flex; }
 
   .modal-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 24px;
-    width: 100%;
-    max-width: 420px;
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:24px; padding:24px;
+    width:100%; max-width:420px;
+    box-shadow:var(--shadow-md);
   }
-
-  .modal-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
-  .modal-sub {
-    font-size: 12px;
-    color: var(--text2);
-    margin-bottom: 20px;
-  }
+  .modal-title { font-size:18px; font-weight:800; margin-bottom:3px; }
+  .modal-sub { font-size:12px; color:var(--text2); margin-bottom:18px; }
 
   .camera-wrap {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #000;
-    aspect-ratio: 4/3;
-    margin-bottom: 16px;
+    position:relative; border-radius:16px; overflow:hidden;
+    background:#000; aspect-ratio:4/3; margin-bottom:14px;
+    border:1.5px solid var(--border);
   }
-
-  #camera-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transform: scaleX(-1);
-  }
+  #camera-video { width:100%; height:100%; object-fit:cover; display:block; transform:scaleX(-1); }
 
   .camera-overlay {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    padding: 12px;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
-    font-family: var(--mono);
-    font-size: 11px;
-    color: rgba(255,255,255,0.9);
-    line-height: 1.6;
+    position:absolute; bottom:0; left:0; right:0;
+    padding:10px 12px;
+    background:linear-gradient(transparent, rgba(0,0,0,0.65));
+    font-family:var(--mono); font-size:11px; color:rgba(255,255,255,0.9); line-height:1.6;
   }
+  .camera-overlay .loc-line { color:#fcd34d; font-size:10px; }
+  #camera-canvas { display:none; }
 
-  .camera-overlay .loc-line {
-    color: var(--accent2);
-    font-size: 10px;
-  }
-
-  #camera-canvas { display: none; }
-
-  /* ─── LOCATION STATUS ─── */
   .location-status {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
+    background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:12px; padding:10px 14px;
+    margin-bottom:14px;
+    display:flex; align-items:center; gap:10px; font-size:13px;
   }
-
-  .location-status .loc-icon { font-size: 18px; }
-  .location-status .loc-text { flex: 1; }
+  .location-status .loc-icon { font-size:16px; }
+  .location-status .loc-text { flex:1; font-size:12px; color:var(--text2); }
   .location-status .loc-badge {
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    font-family:var(--mono); font-size:11px;
+    padding:3px 8px; border-radius:6px;
+    background:var(--surface); border:1px solid var(--border);
   }
+  .location-status.ok { border-color:var(--success); background:var(--success-light); }
+  .location-status.ok .loc-badge { color:var(--success); border-color:var(--success); }
+  .location-status.error { border-color:var(--danger); background:var(--danger-light); }
+  .location-status.error .loc-badge { color:var(--danger); border-color:var(--danger); }
+  .location-status.checking { border-color:var(--accent); background:var(--accent-pale); }
+  .location-status.checking .loc-badge { color:var(--accent2); border-color:var(--accent); }
 
-  .location-status.ok { border-color: var(--success); }
-  .location-status.ok .loc-badge { color: var(--success); border-color: var(--success); }
-  .location-status.error { border-color: var(--danger); }
-  .location-status.error .loc-badge { color: var(--danger); border-color: var(--danger); }
-  .location-status.checking { border-color: var(--warning); }
-  .location-status.checking .loc-badge { color: var(--warning); border-color: var(--warning); }
-
-  .modal-btns {
-    display: flex;
-    gap: 10px;
-  }
+  .modal-btns { display:flex; gap:10px; }
 
   .btn-capture {
-    flex: 1;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-family: var(--sans);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    flex:1; padding:13px;
+    background:var(--accent); border:none; border-radius:12px;
+    color:var(--text); font-family:var(--sans); font-size:14px; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
   }
-
-  .btn-capture:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-capture:hover:not(:disabled) { filter: brightness(1.1); }
+  .btn-capture:disabled { opacity:0.4; cursor:not-allowed; }
+  .btn-capture:hover:not(:disabled) { filter:brightness(1.05); transform:translateY(-1px); }
 
   .btn-cancel {
-    padding: 14px 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text2);
-    font-family: var(--sans);
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
+    padding:13px 18px; background:var(--surface2);
+    border:1.5px solid var(--border); border-radius:12px;
+    color:var(--text2); font-family:var(--sans); font-size:13px;
+    cursor:pointer; transition:all 0.2s;
   }
+  .btn-cancel:hover { border-color:var(--border2); color:var(--text); }
 
-  .btn-cancel:hover { border-color: var(--text2); color: var(--text); }
-
-  /* ─── PREVIEW MODAL ─── */
-  #modal-preview .preview-img {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 16px;
+  /* ── ADMIN MODAL ── */
+  .admin-tabs { display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap; }
+  .admin-tab {
+    padding:8px 16px; border:1.5px solid var(--border);
+    border-radius:20px; background:var(--surface2);
+    font-family:var(--sans); font-size:12px; font-weight:600;
+    color:var(--text2); cursor:pointer; transition:all 0.15s;
   }
+  .admin-tab.active { background:var(--accent); border-color:var(--accent); color:var(--text); }
+  .admin-tab-content { display:none; }
+  .admin-tab-content.active { display:block; }
 
-  .btn-confirm {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--success), #059669);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-family: var(--sans);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: all 0.2s;
-  }
-
-  .btn-confirm:hover { filter: brightness(1.05); }
-
-  /* ─── LOGOUT ─── */
-  .btn-logout {
-    margin: 8px 24px 24px;
-    padding: 12px;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text3);
-    font-family: var(--sans);
-    font-size: 13px;
-    cursor: pointer;
-    width: calc(100% - 48px);
-    transition: all 0.2s;
-  }
-
-  .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
-
-  /* ─── LOADING ─── */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(10,14,26,0.8);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .loading-overlay.active { display: flex; }
-
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .loading-text {
-    font-size: 13px;
-    color: var(--text2);
-  }
-
-  /* ─── TOAST ─── */
-  .toast {
-    position: fixed;
-    bottom: 80px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    opacity: 0;
-    transition: all 0.3s;
-    z-index: 300;
-    white-space: nowrap;
-    max-width: calc(100vw - 48px);
-  }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .toast.success { border-color: var(--success); color: var(--success); }
-  .toast.error { border-color: var(--danger); color: var(--danger); }
-  .toast.info { border-color: var(--accent); color: var(--accent); }
-
-  /* ─── EMPTY STATE ─── */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text3);
-  }
-
-  .empty-state .empty-icon { font-size: 36px; margin-bottom: 12px; }
-  .empty-state p { font-size: 13px; }
-
-  /* ─── ADMIN MODAL ─── */
-  .form-group {
-    margin-bottom: 16px;
-  }
-
+  .form-group { margin-bottom:14px; }
   .form-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text2);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display:block; font-size:11px; font-weight:700;
+    color:var(--text2); margin-bottom:5px;
+    text-transform:uppercase; letter-spacing:0.5px;
   }
-
   .form-input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-family: var(--sans);
-    font-size: 14px;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
+    width:100%; background:var(--surface2);
+    border:1.5px solid var(--border); border-radius:10px;
+    padding:11px 13px; font-family:var(--sans); font-size:14px;
+    color:var(--text); outline:none; transition:border-color 0.2s;
   }
-
-  .form-input:focus { border-color: var(--accent); }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+  .form-input:focus { border-color:var(--accent); }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
   .btn-primary {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-family: var(--sans);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 4px;
+    width:100%; padding:13px;
+    background:var(--accent); border:none; border-radius:12px;
+    color:var(--text); font-family:var(--sans); font-size:14px; font-weight:700;
+    cursor:pointer; transition:all 0.2s; margin-top:4px;
+  }
+  .btn-primary:hover { filter:brightness(1.05); transform:translateY(-1px); }
+
+  /* ── WORKER LIST IN ADMIN ── */
+  .admin-worker-item {
+    background:var(--surface2); border:1.5px solid var(--border);
+    border-radius:13px; padding:12px 14px;
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:8px;
+  }
+  .admin-worker-avatar {
+    width:40px; height:40px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:800; color:white;
+    flex-shrink:0;
+  }
+  .admin-worker-info { flex:1; }
+  .admin-worker-name { font-size:14px; font-weight:700; margin-bottom:2px; }
+  .admin-worker-meta { font-size:11px; color:var(--text3); font-family:var(--mono); }
+
+  /* ── SLIP GAJI PREVIEW ── */
+  .slip-filter { display:flex; gap:10px; margin-bottom:16px; }
+  .slip-filter select {
+    flex:1; background:var(--surface2);
+    border:1.5px solid var(--border); border-radius:10px;
+    padding:10px 13px; font-family:var(--sans); font-size:13px;
+    color:var(--text); outline:none;
   }
 
-  .btn-primary:hover { filter: brightness(1.05); }
-
-  /* ─── IMAGE MODAL ─── */
-  #modal-image .modal-box {
-    max-width: 480px;
+  .slip-card {
+    background:var(--surface); border:1.5px solid var(--border);
+    border-radius:16px; overflow:hidden;
+    box-shadow:var(--shadow);
   }
-
-  #modal-image img {
-    width: 100%;
-    border-radius: 12px;
+  .slip-header {
+    background:var(--accent); padding:16px 20px;
+    display:flex; align-items:center; justify-content:space-between;
   }
+  .slip-header-title { font-size:14px; font-weight:800; color:var(--text); }
+  .slip-header-sub { font-size:11px; color:rgba(26,24,20,0.6); margin-top:2px; }
+  .slip-body { padding:16px 20px; }
+  .slip-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .slip-row:last-child { border-bottom:none; }
+  .slip-row-label { color:var(--text2); }
+  .slip-row-value { font-family:var(--mono); font-weight:500; }
+  .slip-total {
+    background:var(--accent-pale); border:1.5px solid var(--accent);
+    border-radius:12px; padding:14px 16px;
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:12px;
+  }
+  .slip-total-label { font-weight:700; font-size:14px; }
+  .slip-total-value { font-family:var(--mono); font-size:20px; font-weight:700; color:var(--accent2); }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .btn-generate {
+    width:100%; padding:13px;
+    background:var(--text); border:none; border-radius:12px;
+    color:white; font-family:var(--sans); font-size:14px; font-weight:700;
+    cursor:pointer; transition:all 0.2s; margin-top:14px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-generate:hover { background:#333; transform:translateY(-1px); }
 
-  @media (max-width: 480px) {
-    .workers-grid { grid-template-columns: repeat(3, 1fr); }
-    .pin-box { padding: 28px 20px; }
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align:center; padding:36px 20px; color:var(--text3); }
+  .empty-icon { font-size:36px; margin-bottom:10px; animation:float 3s ease-in-out infinite; }
+  @keyframes float {
+    0%,100% { transform:translateY(0); }
+    50% { transform:translateY(-6px); }
+  }
+  .empty-state p { font-size:13px; }
+
+  /* ── LOADING ── */
+  .loading-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(245,244,240,0.8); z-index:200;
+    align-items:center; justify-content:center;
+    flex-direction:column; gap:14px;
+    backdrop-filter:blur(4px);
+  }
+  .loading-overlay.active { display:flex; }
+  .spinner {
+    width:38px; height:38px;
+    border:3px solid var(--border);
+    border-top-color:var(--accent);
+    border-radius:50%;
+    animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-text { font-size:13px; color:var(--text2); font-weight:500; }
+
+  /* ── TOAST ── */
+  .toast {
+    position:fixed; bottom:80px; left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--text); border-radius:12px;
+    padding:11px 20px; font-size:13px; font-weight:600;
+    color:white; opacity:0; transition:all 0.3s;
+    z-index:300; white-space:nowrap; max-width:calc(100vw - 48px);
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.success { background:var(--success); }
+  .toast.error { background:var(--danger); }
+  .toast.info { background:var(--text); }
+
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+
+  @media(max-width:480px) {
+    .workers-grid { grid-template-columns:repeat(3,1fr); }
+    .pin-box { padding:28px 18px; }
+    .admin-tabs { gap:4px; }
+    .admin-tab { padding:7px 12px; font-size:11px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════ SCREEN: HOME ═══════════════════════════════ -->
+<!-- ══════════════════ SCREEN: HOME ══════════════════ -->
 <div id="screen-home" class="screen active">
   <div class="header">
     <div class="logo">
@@ -929,17 +586,18 @@
       <div class="logo-text">Part<span>Time</span> Pro</div>
     </div>
     <div class="time-display">
-      <span class="time-big" id="clock">--:--:--</span>
-      <span id="date-display">--</span>
+      <span class="time-big" id="clock">--:-- --</span>
+      <div class="time-date" id="date-display">--</div>
     </div>
   </div>
 
-  <div style="padding: 32px 24px; flex:1;">
-    <div class="home-title">
-      <h2>Pilih Profil Anda</h2>
-      <p>Klik avatar untuk punch in / punch out</p>
-    </div>
+  <div class="home-hero">
+    <h2>Pilih Profil Anda</h2>
+    <p>Klik avatar untuk punch in / punch out</p>
+  </div>
 
+  <div class="home-body">
+    <div class="section-label">Pekerja Berdaftar</div>
     <div class="workers-grid" id="workers-grid">
       <div class="empty-state" style="grid-column:1/-1;">
         <div class="empty-icon">👤</div>
@@ -951,20 +609,18 @@
   <button class="btn-admin" onclick="showAdminModal()">⚙️ Admin</button>
 </div>
 
-<!-- ═══════════════════════════════ SCREEN: PIN ═══════════════════════════════ -->
+<!-- ══════════════════ SCREEN: PIN ══════════════════ -->
 <div id="screen-pin" class="screen">
-  <div class="pin-box">
+  <div class="pin-box" style="margin:auto;">
     <div class="pin-avatar" id="pin-avatar">?</div>
     <div class="pin-name" id="pin-name">Nama Pekerja</div>
     <div class="pin-subtitle">Masukkan 4 digit terakhir No. Kad Pengenalan</div>
-
     <div class="pin-dots">
       <div class="pin-dot" id="dot-0"></div>
       <div class="pin-dot" id="dot-1"></div>
       <div class="pin-dot" id="dot-2"></div>
       <div class="pin-dot" id="dot-3"></div>
     </div>
-
     <div class="pin-keypad">
       <button class="pin-key" onclick="pinPress('1')">1</button>
       <button class="pin-key" onclick="pinPress('2')">2</button>
@@ -978,13 +634,12 @@
       <button class="pin-key" onclick="pinPress('0')">0</button>
       <button class="pin-key del" onclick="pinDelete()">⌫</button>
     </div>
-
     <div class="pin-error-msg" id="pin-error"></div>
     <button class="btn-back" onclick="showScreen('home')">← Kembali</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════════ SCREEN: DASHBOARD ═══════════════════════════════ -->
+<!-- ══════════════════ SCREEN: DASHBOARD ══════════════════ -->
 <div id="screen-dashboard" class="screen">
   <div class="header">
     <div class="logo">
@@ -992,8 +647,8 @@
       <div class="logo-text">Part<span>Time</span> Pro</div>
     </div>
     <div class="time-display">
-      <span class="time-big" id="clock2">--:--:--</span>
-      <span id="date-display2">--</span>
+      <span class="time-big" id="clock2">--:-- --</span>
+      <div class="time-date" id="date-display2">--</div>
     </div>
   </div>
 
@@ -1008,12 +663,9 @@
   </div>
 
   <div class="dash-content">
-
-    <!-- Punch Card -->
     <div class="punch-card">
       <div class="punch-label">Status Hari Ini</div>
       <div class="punch-status out" id="punch-status-text">BELUM MASUK</div>
-
       <div class="punch-info">
         <div class="punch-info-item">
           <div class="punch-info-label">Punch In</div>
@@ -1032,13 +684,11 @@
           <div class="punch-info-value" id="info-earn">RM —</div>
         </div>
       </div>
-
       <button class="btn-punch punch-in" id="btn-punch" onclick="startPunch()">
         <span>📍</span> Punch In Sekarang
       </button>
     </div>
 
-    <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
         <span class="stat-value" id="stat-days">0</span>
@@ -1054,26 +704,23 @@
       </div>
     </div>
 
-    <!-- History -->
-    <div class="section-title">Rekod Kehadiran</div>
+    <div class="section-label">Rekod Kehadiran</div>
     <div class="history-list" id="history-list">
       <div class="empty-state">
         <div class="empty-icon">📋</div>
         <p>Tiada rekod lagi.</p>
       </div>
     </div>
-
   </div>
 
   <button class="btn-logout" onclick="logout()">↩ Log Keluar</button>
 </div>
 
-<!-- ═══════════════════════════════ MODAL: CAMERA ═══════════════════════════════ -->
+<!-- ══════════════════ MODAL: CAMERA ══════════════════ -->
 <div class="modal-overlay" id="modal-camera">
   <div class="modal-box">
-    <div class="modal-title" id="camera-title">📸 Selfie Punch In</div>
-    <div class="modal-sub">Pastikan wajah anda kelihatan jelas</div>
-
+    <div class="modal-title" id="camera-title">📸 Pengesahan Punch In</div>
+    <div class="modal-sub">Pastikan wajah anda kelihatan jelas dalam kamera</div>
     <div class="camera-wrap">
       <video id="camera-video" autoplay playsinline></video>
       <div class="camera-overlay">
@@ -1082,13 +729,11 @@
       </div>
     </div>
     <canvas id="camera-canvas"></canvas>
-
     <div class="location-status checking" id="location-status">
       <span class="loc-icon">📡</span>
       <span class="loc-text">Memeriksa lokasi...</span>
       <span class="loc-badge" id="loc-badge">Checking</span>
     </div>
-
     <div class="modal-btns">
       <button class="btn-capture" id="btn-capture" onclick="capturePhoto()" disabled>
         ✅ Sahkan & Punch
@@ -1098,24 +743,13 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════ MODAL: PREVIEW ═══════════════════════════════ -->
-<div class="modal-overlay" id="modal-preview">
-  <div class="modal-box" id="modal-preview">
-    <div class="modal-title">✅ Sahkan Gambar</div>
-    <div class="modal-sub">Pastikan gambar jelas sebelum simpan</div>
-    <img class="preview-img" id="preview-img" src="" alt="Preview">
-    <button class="btn-confirm" onclick="confirmPunch()">Sahkan & Simpan</button>
-    <button class="btn-cancel" style="width:100%;text-align:center;" onclick="retakePhoto()">↩ Ambil Semula</button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════ MODAL: ADMIN ═══════════════════════════════ -->
+<!-- ══════════════════ MODAL: ADMIN ══════════════════ -->
 <div class="modal-overlay" id="modal-admin">
   <div class="modal-box" style="max-height:90vh;overflow-y:auto;">
     <div class="modal-title">⚙️ Panel Admin</div>
     <div class="modal-sub">Urus pekerja dan tetapan sistem</div>
 
-    <!-- Admin Login -->
+    <!-- Login -->
     <div id="admin-login-section">
       <div class="form-group">
         <label class="form-label">Kata Laluan Admin</label>
@@ -1124,686 +758,738 @@
       <button class="btn-primary" onclick="adminLogin()">Masuk Admin</button>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- Panel -->
     <div id="admin-panel-section" style="display:none;">
-
-      <div class="section-title" style="margin-top:0;">Tambah Pekerja</div>
-      <div class="form-group">
-        <label class="form-label">Nama Penuh</label>
-        <input type="text" class="form-input" id="worker-name-input" placeholder="cth: Ahmad bin Ali">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchAdminTab('pekerja')">👥 Senarai Pekerja</button>
+        <button class="admin-tab" onclick="switchAdminTab('slip')">🧾 Slip Gaji</button>
+        <button class="admin-tab" onclick="switchAdminTab('tambah')">➕ Tambah Pekerja</button>
+        <button class="admin-tab" onclick="switchAdminTab('lokasi')">📍 Lokasi HQ</button>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">No. IC (12 digit)</label>
-          <input type="text" class="form-input" id="worker-ic-input" placeholder="990101012345" maxlength="12">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Rate Gaji (RM/jam)</label>
-          <input type="number" class="form-input" id="worker-rate-input" value="9" min="9" max="20">
+
+      <!-- TAB: Senarai Pekerja -->
+      <div class="admin-tab-content active" id="tab-pekerja">
+        <div id="admin-workers-list">
+          <div class="empty-state"><div class="empty-icon">👤</div><p>Tiada pekerja.</p></div>
         </div>
       </div>
-      <button class="btn-primary" onclick="addWorker()">➕ Daftar Pekerja</button>
 
-      <div class="section-title" style="margin-top:24px;">Tetapan Lokasi</div>
-      <div class="form-group">
-        <label class="form-label">Latitud HQ</label>
-        <input type="text" class="form-input" id="hq-lat-input" placeholder="cth: 3.8142">
+      <!-- TAB: Slip Gaji -->
+      <div class="admin-tab-content" id="tab-slip">
+        <div class="slip-filter">
+          <select id="slip-worker-select"><option value="">-- Pilih Pekerja --</option></select>
+          <select id="slip-month-select"></select>
+        </div>
+        <div id="slip-preview">
+          <div class="empty-state"><div class="empty-icon">🧾</div><p>Pilih pekerja dan bulan untuk jana slip gaji.</p></div>
+        </div>
+        <button class="btn-generate" id="btn-generate" onclick="generateSlip()" style="display:none;">
+          📄 Jana Slip Gaji PDF
+        </button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Longitud HQ</label>
-        <input type="text" class="form-input" id="hq-lng-input" placeholder="cth: 103.3256">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Radius Dibenarkan (meter)</label>
-        <input type="number" class="form-input" id="hq-radius-input" value="100" min="10" max="1000">
-      </div>
-      <button class="btn-primary" onclick="saveLocation()">💾 Simpan Lokasi</button>
 
-      <div class="section-title" style="margin-top:24px;">Senarai Pekerja</div>
-      <div id="admin-workers-list"></div>
+      <!-- TAB: Tambah Pekerja -->
+      <div class="admin-tab-content" id="tab-tambah">
+        <div class="form-group">
+          <label class="form-label">Nama Penuh</label>
+          <input type="text" class="form-input" id="worker-name-input" placeholder="cth: Ahmad bin Ali">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">No. IC (12 digit)</label>
+            <input type="text" class="form-input" id="worker-ic-input" placeholder="990101012345" maxlength="12">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rate (RM/jam)</label>
+            <input type="number" class="form-input" id="worker-rate-input" value="9" min="9" max="50">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="addWorker()">➕ Daftar Pekerja</button>
+      </div>
 
+      <!-- TAB: Lokasi HQ -->
+      <div class="admin-tab-content" id="tab-lokasi">
+        <div class="form-group">
+          <label class="form-label">Latitud HQ</label>
+          <input type="text" class="form-input" id="hq-lat-input" placeholder="cth: 3.8142">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitud HQ</label>
+          <input type="text" class="form-input" id="hq-lng-input" placeholder="cth: 103.3256">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Radius Dibenarkan (meter)</label>
+          <input type="number" class="form-input" id="hq-radius-input" value="100" min="10" max="2000">
+        </div>
+        <button class="btn-primary" onclick="saveLocation()">💾 Simpan Lokasi HQ</button>
+        <div style="margin-top:12px;">
+          <button class="btn-cancel" style="width:100%;text-align:center;" onclick="useCurrentLocation()">
+            📡 Guna Lokasi Semasa Sebagai HQ
+          </button>
+        </div>
+      </div>
     </div>
 
     <button class="btn-cancel" style="width:100%;text-align:center;margin-top:16px;" onclick="closeAdminModal()">Tutup</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════════ MODAL: VIEW IMAGE ═══════════════════════════════ -->
-<div class="modal-overlay" id="modal-image" onclick="this.classList.remove('active')">
-  <div class="modal-box">
-    <img id="modal-image-src" src="" alt="Selfie">
-  </div>
-</div>
-
-<!-- ═══════════════════════════════ LOADING ═══════════════════════════════ -->
+<!-- ══════════════════ LOADING ══════════════════ -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Menyimpan data...</div>
+  <div class="loading-text" id="loading-text">Menyimpan...</div>
 </div>
 
-<!-- ═══════════════════════════════ TOAST ═══════════════════════════════ -->
+<!-- ══════════════════ TOAST ══════════════════ -->
 <div class="toast" id="toast"></div>
 
-<!-- ═══════════════════════════════ FIREBASE + JS ═══════════════════════════════ -->
+<!-- ══════════════════ FIREBASE + JS ══════════════════ -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyAwdpf_kRSWYHCqNxsTbmPo7aEkcdrkFu8",
+  authDomain: "sistem-parttime.firebaseapp.com",
+  projectId: "sistem-parttime",
+  storageBucket: "sistem-parttime.firebasestorage.app",
+  messagingSenderId: "433485277439",
+  appId: "1:433485277439:web:75b47b010e39390724c4ca"
+};
 
-  // ─── FIREBASE CONFIG ───
-  const firebaseConfig = {
-    apiKey: "AIzaSyAwdpf_kRSWYHCqNxsTbmPo7aEkcdrkFu8",
-    authDomain: "sistem-parttime.firebaseapp.com",
-    projectId: "sistem-parttime",
-    storageBucket: "sistem-parttime.firebasestorage.app",
-    messagingSenderId: "433485277439",
-    appId: "1:433485277439:web:75b47b010e39390724c4ca"
-  };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+// ── STATE ──
+let currentWorker = null;
+let currentPunchType = null;
+let currentLocation = null;
+let cameraStream = null;
+let overlayInterval = null;
+let hqConfig = { lat: null, lng: null, radius: 100 };
 
+const ADMIN_PASSWORD = "admin1234";
 
-  // ─── STATE ───
-  let currentWorker = null;
-  let currentPunchType = null;
-  let capturedImageData = null;
-  let currentLocation = null;
-  let locationInRange = false;
-  let cameraStream = null;
-  let overlayInterval = null;
-  let hqConfig = { lat: null, lng: null, radius: 100 };
+// ── HARI DALAM BAHASA MELAYU PENUH ──
+const HARI = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+const BULAN = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
 
-  const ADMIN_PASSWORD = "admin1234";
+function formatTime12(date) {
+  let h = date.getHours();
+  const m = String(date.getMinutes()).padStart(2,'0');
+  const s = String(date.getSeconds()).padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${String(h).padStart(2,'0')}:${m}:${s} ${ampm}`;
+}
 
-  // ─── CLOCK ───
-  function updateClock() {
-    const now = new Date();
-    const t = now.toLocaleTimeString('ms-MY', { hour12: false });
-    const d = now.toLocaleDateString('ms-MY', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
-    document.getElementById('clock').textContent = t;
-    document.getElementById('date-display').textContent = d;
-    const c2 = document.getElementById('clock2');
-    const d2 = document.getElementById('date-display2');
-    if (c2) c2.textContent = t;
-    if (d2) d2.textContent = d;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
+function formatTime12Short(date) {
+  let h = date.getHours();
+  const m = String(date.getMinutes()).padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${String(h).padStart(2,'0')}:${m} ${ampm}`;
+}
 
-  // ─── SCREEN NAVIGATION ───
-  window.showScreen = function(name) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + name).classList.add('active');
-  };
+function formatDateFull(date) {
+  return `${HARI[date.getDay()]}, ${date.getDate()} ${BULAN[date.getMonth()]} ${date.getFullYear()}`;
+}
 
-  // ─── TOAST ───
-  window.showToast = function(msg, type = 'info') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast show ' + type;
-    setTimeout(() => t.classList.remove('show'), 3000);
-  };
+// ── CLOCK ──
+function updateClock() {
+  const now = new Date();
+  const t = formatTime12(now);
+  const d = formatDateFull(now);
+  ['clock','clock2'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = t; });
+  ['date-display','date-display2'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = d; });
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-  // ─── LOADING ───
-  function showLoading(msg = 'Menyimpan...') {
-    document.getElementById('loading-text').textContent = msg;
-    document.getElementById('loading').classList.add('active');
-  }
+// ── SCREEN NAV ──
+window.showScreen = function(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+};
 
-  function hideLoading() {
-    document.getElementById('loading').classList.remove('active');
-  }
+// ── TOAST ──
+window.showToast = function(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show '+type;
+  setTimeout(()=>t.classList.remove('show'), 3200);
+};
 
-  // ─── LOAD WORKERS ───
-  async function loadWorkers() {
-    try {
-      const snap = await getDocs(collection(db, 'workers'));
-      const grid = document.getElementById('workers-grid');
+// ── LOADING ──
+function showLoading(msg='Menyimpan...') {
+  document.getElementById('loading-text').textContent = msg;
+  document.getElementById('loading').classList.add('active');
+}
+function hideLoading() { document.getElementById('loading').classList.remove('active'); }
 
-      // Load HQ config
-      const cfgDoc = await getDoc(doc(db, 'config', 'hq'));
-      if (cfgDoc.exists()) {
-        hqConfig = cfgDoc.data();
-      }
+// ── AVATAR COLORS ──
+const AVATAR_COLORS = [
+  ['#e8a020','#c97d00'], ['#6366f1','#4f46e5'], ['#10b981','#059669'],
+  ['#f43f5e','#e11d48'], ['#8b5cf6','#7c3aed'], ['#06b6d4','#0891b2']
+];
 
-      if (snap.empty) {
-        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-          <div class="empty-icon">👤</div>
-          <p>Tiada pekerja didaftarkan.<br>Klik Admin untuk tambah pekerja.</p>
-        </div>`;
-        return;
-      }
+// ── LOAD WORKERS ──
+async function loadWorkers() {
+  try {
+    const snap = await getDocs(collection(db,'workers'));
+    const cfgDoc = await getDoc(doc(db,'config','hq'));
+    if(cfgDoc.exists()) hqConfig = cfgDoc.data();
 
-      const workers = [];
-      snap.forEach(d => workers.push({ id: d.id, ...d.data() }));
-      workers.sort((a, b) => (a.serial || '').localeCompare(b.serial || ''));
-
-      grid.innerHTML = workers.map(w => {
-        const initials = w.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-        const colors = ['#3b82f6,#06b6d4', '#8b5cf6,#ec4899', '#10b981,#06b6d4', '#f59e0b,#ef4444', '#6366f1,#8b5cf6'];
-        const colorIdx = (w.serial || 'PT001').charCodeAt(2) % colors.length;
-        return `
-          <div class="worker-card" onclick="selectWorker('${w.id}')">
-            <div class="worker-avatar" style="background:linear-gradient(135deg,${colors[colorIdx]})">
-              ${initials}
-              <div class="worker-status-dot ${w.punchedIn ? 'punched-in' : ''}"></div>
-            </div>
-            <div class="worker-name">${w.name.split(' ')[0]}</div>
-            <div class="worker-id">${w.serial || '—'}</div>
-          </div>`;
-      }).join('');
-
-    } catch (e) {
-      console.error(e);
-      showToast('Gagal muat pekerja: ' + e.message, 'error');
-    }
-  }
-
-  loadWorkers();
-
-  // ─── SELECT WORKER ───
-  window.selectWorker = function(workerId) {
-    // Find worker data
-    getDocs(collection(db, 'workers')).then(snap => {
-      snap.forEach(d => {
-        if (d.id === workerId) {
-          currentWorker = { id: d.id, ...d.data() };
-        }
-      });
-      if (!currentWorker) return;
-      const initials = currentWorker.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-      document.getElementById('pin-avatar').textContent = initials;
-      document.getElementById('pin-name').textContent = currentWorker.name;
-      document.getElementById('pin-error').textContent = '';
-      pinClear();
-      showScreen('pin');
-    });
-  };
-
-  // ─── PIN ───
-  let pinBuffer = '';
-
-  window.pinPress = function(digit) {
-    if (pinBuffer.length >= 4) return;
-    pinBuffer += digit;
-    updatePinDots();
-    if (pinBuffer.length === 4) {
-      setTimeout(verifyPin, 100);
-    }
-  };
-
-  window.pinDelete = function() {
-    pinBuffer = pinBuffer.slice(0, -1);
-    updatePinDots();
-  };
-
-  function pinClear() {
-    pinBuffer = '';
-    updatePinDots();
-  }
-
-  function updatePinDots() {
-    for (let i = 0; i < 4; i++) {
-      const dot = document.getElementById('dot-' + i);
-      dot.classList.remove('filled', 'error');
-      if (i < pinBuffer.length) dot.classList.add('filled');
-    }
-  }
-
-  function verifyPin() {
-    const ic = currentWorker.ic || '';
-    const correctPin = ic.slice(-4);
-    if (pinBuffer === correctPin) {
-      document.getElementById('pin-error').textContent = '';
-      loadDashboard();
-      showScreen('dashboard');
-    } else {
-      for (let i = 0; i < 4; i++) {
-        document.getElementById('dot-' + i).classList.replace('filled', 'error');
-      }
-      document.getElementById('pin-error').textContent = 'PIN salah. Cuba lagi.';
-      setTimeout(() => {
-        pinClear();
-        document.getElementById('pin-error').textContent = '';
-      }, 1000);
-    }
-  }
-
-  // ─── DASHBOARD ───
-  async function loadDashboard() {
-    document.getElementById('dash-name').textContent = currentWorker.name;
-    document.getElementById('badge-id').textContent = '🪪 ' + (currentWorker.serial || '—');
-
-    const today = new Date().toISOString().split('T')[0];
-    const monthStart = today.slice(0, 7);
-
-    try {
-      // Today's record
-      const todayRef = doc(db, 'attendance', `${currentWorker.id}_${today}`);
-      const todaySnap = await getDoc(todayRef);
-
-      if (todaySnap.exists()) {
-        const data = todaySnap.data();
-        updatePunchUI(data);
-      } else {
-        resetPunchUI();
-      }
-
-      // Monthly stats
-      const q = query(
-        collection(db, 'attendance'),
-        where('workerId', '==', currentWorker.id),
-        where('date', '>=', monthStart + '-01'),
-        where('date', '<=', monthStart + '-31'),
-        orderBy('date', 'desc')
-      );
-      const monthSnap = await getDocs(q);
-      let totalHours = 0;
-      let totalDays = 0;
-      const historyItems = [];
-
-      monthSnap.forEach(d => {
-        const rec = d.data();
-        if (rec.totalMinutes) {
-          totalHours += rec.totalMinutes / 60;
-          totalDays++;
-        }
-        historyItems.push(rec);
-      });
-
-      const rate = currentWorker.rate || 9;
-      document.getElementById('stat-days').textContent = totalDays;
-      document.getElementById('stat-hours').textContent = totalHours.toFixed(1) + 'j';
-      document.getElementById('stat-earn').textContent = 'RM' + (totalHours * rate).toFixed(0);
-
-      // History list
-      renderHistory(historyItems);
-
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  function resetPunchUI() {
-    document.getElementById('punch-status-text').textContent = 'BELUM MASUK';
-    document.getElementById('punch-status-text').className = 'punch-status out';
-    document.getElementById('info-in').textContent = '—';
-    document.getElementById('info-out').textContent = '—';
-    document.getElementById('info-hours').textContent = '—';
-    document.getElementById('info-earn').textContent = 'RM —';
-    document.getElementById('badge-status').textContent = '⚪ Belum Punch In';
-    document.getElementById('badge-status').className = 'badge';
-    document.getElementById('badge-hours').textContent = '⏳ 0j 0m';
-    document.getElementById('btn-punch').className = 'btn-punch punch-in';
-    document.getElementById('btn-punch').innerHTML = '<span>📍</span> Punch In Sekarang';
-    document.getElementById('btn-punch').disabled = false;
-  }
-
-  function updatePunchUI(data) {
-    const rate = currentWorker.rate || 9;
-    if (data.punchIn) {
-      const inTime = data.punchIn.toDate ? data.punchIn.toDate() : new Date(data.punchIn);
-      document.getElementById('info-in').textContent = inTime.toLocaleTimeString('ms-MY', { hour12: false });
-      document.getElementById('punch-status-text').textContent = 'SUDAH MASUK';
-      document.getElementById('punch-status-text').className = 'punch-status in';
-      document.getElementById('badge-status').textContent = '🟢 Sedang Bekerja';
-      document.getElementById('badge-status').className = 'badge active';
-      document.getElementById('btn-punch').className = 'btn-punch punch-out';
-      document.getElementById('btn-punch').innerHTML = '<span>🚪</span> Punch Out';
-    }
-    if (data.punchOut) {
-      const outTime = data.punchOut.toDate ? data.punchOut.toDate() : new Date(data.punchOut);
-      document.getElementById('info-out').textContent = outTime.toLocaleTimeString('ms-MY', { hour12: false });
-      document.getElementById('btn-punch').disabled = true;
-      document.getElementById('btn-punch').innerHTML = '<span>✅</span> Selesai Hari Ini';
-      document.getElementById('badge-status').textContent = '✅ Selesai';
-      document.getElementById('badge-status').className = 'badge';
-    }
-    if (data.totalMinutes) {
-      const h = Math.floor(data.totalMinutes / 60);
-      const m = data.totalMinutes % 60;
-      document.getElementById('info-hours').textContent = h + 'j ' + m + 'm';
-      document.getElementById('info-earn').textContent = 'RM ' + ((data.totalMinutes / 60) * rate).toFixed(2);
-      document.getElementById('badge-hours').textContent = '⏳ ' + h + 'j ' + m + 'm';
-    }
-  }
-
-  function renderHistory(items) {
-    const list = document.getElementById('history-list');
-    if (!items.length) {
-      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>Tiada rekod bulan ini.</p></div>`;
+    const grid = document.getElementById('workers-grid');
+    if(snap.empty) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">👤</div><p>Tiada pekerja didaftarkan.<br>Klik Admin untuk tambah.</p></div>`;
       return;
     }
-    list.innerHTML = items.slice(0, 10).map(rec => {
-      const inTime = rec.punchIn ? (rec.punchIn.toDate ? rec.punchIn.toDate() : new Date(rec.punchIn)) : null;
-      const outTime = rec.punchOut ? (rec.punchOut.toDate ? rec.punchOut.toDate() : new Date(rec.punchOut)) : null;
-      const h = rec.totalMinutes ? Math.floor(rec.totalMinutes / 60) + 'j ' + (rec.totalMinutes % 60) + 'm' : '—';
+
+    const workers = [];
+    snap.forEach(d => workers.push({id:d.id,...d.data()}));
+    workers.sort((a,b)=>(a.serial||'').localeCompare(b.serial||''));
+
+    grid.innerHTML = workers.map(w => {
+      const initials = w.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const ci = (parseInt((w.serial||'PT001').slice(2))-1) % AVATAR_COLORS.length;
+      const [c1,c2] = AVATAR_COLORS[ci];
       return `
-        <div class="history-item">
-          <div class="history-dot ${outTime ? '' : 'out'}"></div>
-          <div style="flex:1">
-            <div class="history-time">${rec.date || '—'}</div>
-            <div class="history-detail">
-              Masuk: ${inTime ? inTime.toLocaleTimeString('ms-MY', { hour12: false }) : '—'} &nbsp;|&nbsp;
-              Keluar: ${outTime ? outTime.toLocaleTimeString('ms-MY', { hour12: false }) : '—'} &nbsp;|&nbsp;
-              ${h}
-            </div>
-            ${rec.punchInLat ? `<div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px;">📍 ${rec.punchInLat.toFixed(5)}, ${rec.punchInLng.toFixed(5)}</div>` : ''}
+        <div class="worker-card" onclick="selectWorker('${w.id}')">
+          <div class="worker-avatar" style="background:linear-gradient(135deg,${c1},${c2})">
+            ${initials}
+            <div class="worker-status-dot ${w.punchedIn?'punched-in':''}"></div>
           </div>
+          <div class="worker-name">${w.name.split(' ')[0]}</div>
+          <div class="worker-id">${w.serial||'—'}</div>
         </div>`;
     }).join('');
+  } catch(e) {
+    showToast('Gagal muat pekerja: '+e.message,'error');
   }
+}
+loadWorkers();
 
-  window.viewImage = function(url) {
-    document.getElementById('modal-image-src').src = url;
-    document.getElementById('modal-image').classList.add('active');
-  };
+// ── SELECT WORKER ──
+window.selectWorker = async function(workerId) {
+  const snap = await getDocs(collection(db,'workers'));
+  snap.forEach(d => { if(d.id===workerId) currentWorker={id:d.id,...d.data()}; });
+  if(!currentWorker) return;
+  const initials = currentWorker.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const ci = (parseInt((currentWorker.serial||'PT001').slice(2))-1) % AVATAR_COLORS.length;
+  const [c1,c2] = AVATAR_COLORS[ci];
+  document.getElementById('pin-avatar').textContent = initials;
+  document.getElementById('pin-avatar').style.background = `linear-gradient(135deg,${c1},${c2})`;
+  document.getElementById('pin-name').textContent = currentWorker.name;
+  document.getElementById('pin-error').textContent = '';
+  pinClear();
+  showScreen('pin');
+};
 
-  // ─── PUNCH FLOW ───
-  window.startPunch = async function() {
-    const today = new Date().toISOString().split('T')[0];
-    const todayRef = doc(db, 'attendance', `${currentWorker.id}_${today}`);
-    const todaySnap = await getDoc(todayRef);
+// ── PIN ──
+let pinBuffer = '';
+window.pinPress = function(digit) {
+  if(pinBuffer.length>=4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if(pinBuffer.length===4) setTimeout(verifyPin, 100);
+};
+window.pinDelete = function() { pinBuffer=pinBuffer.slice(0,-1); updatePinDots(); };
+function pinClear() { pinBuffer=''; updatePinDots(); }
+function updatePinDots() {
+  for(let i=0;i<4;i++) {
+    const d = document.getElementById('dot-'+i);
+    d.classList.remove('filled','error');
+    if(i<pinBuffer.length) d.classList.add('filled');
+  }
+}
+function verifyPin() {
+  const ic = currentWorker.ic || '';
+  if(pinBuffer === ic.slice(-4)) {
+    document.getElementById('pin-error').textContent = '';
+    loadDashboard();
+    showScreen('dashboard');
+  } else {
+    for(let i=0;i<4;i++) document.getElementById('dot-'+i).classList.replace('filled','error');
+    document.getElementById('pin-error').textContent = 'PIN salah. Cuba lagi.';
+    setTimeout(()=>{ pinClear(); document.getElementById('pin-error').textContent=''; }, 1000);
+  }
+}
 
-    if (todaySnap.exists() && todaySnap.data().punchIn) {
-      currentPunchType = 'out';
-      document.getElementById('camera-title').textContent = '📸 Selfie Punch Out';
-    } else {
-      currentPunchType = 'in';
-      document.getElementById('camera-title').textContent = '📸 Selfie Punch In';
-    }
+// ── DASHBOARD ──
+async function loadDashboard() {
+  document.getElementById('dash-name').textContent = currentWorker.name;
+  document.getElementById('badge-id').textContent = '🪪 '+(currentWorker.serial||'—');
 
-    openCamera();
-  };
+  const today = new Date().toISOString().split('T')[0];
+  const monthStart = today.slice(0,7)+'-01';
+  const monthEnd = today.slice(0,7)+'-31';
 
-  // ─── CAMERA ───
-  async function openCamera() {
-    document.getElementById('modal-camera').classList.add('active');
-    document.getElementById('btn-capture').disabled = true;
-    currentLocation = null;
-    locationInRange = false;
+  try {
+    const todaySnap = await getDoc(doc(db,'attendance',`${currentWorker.id}_${today}`));
+    if(todaySnap.exists()) updatePunchUI(todaySnap.data());
+    else resetPunchUI();
 
-    updateLocationStatus('checking', 'Memeriksa lokasi...', 'Checking');
-
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-      document.getElementById('camera-video').srcObject = cameraStream;
-    } catch (e) {
-      showToast('Kamera tidak dapat diakses: ' + e.message, 'error');
-      closeCamera();
-      return;
-    }
-
-    // Overlay datetime
-    overlayInterval = setInterval(() => {
-      const now = new Date();
-      document.getElementById('overlay-datetime').textContent =
-        now.toLocaleDateString('ms-MY') + ' ' + now.toLocaleTimeString('ms-MY', { hour12: false });
-    }, 1000);
-
-    // Get location
-    if (!navigator.geolocation) {
-      updateLocationStatus('error', 'GPS tidak disokong', 'Error');
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        currentLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy };
-        document.getElementById('overlay-coords').textContent =
-          `📍 ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
-
-        if (hqConfig.lat && hqConfig.lng) {
-          const dist = haversine(pos.coords.latitude, pos.coords.longitude, hqConfig.lat, hqConfig.lng);
-          if (dist <= hqConfig.radius) {
-            locationInRange = true;
-            updateLocationStatus('ok', `Dalam kawasan (${Math.round(dist)}m dari HQ)`, '✓ OK');
-            document.getElementById('btn-capture').disabled = false;
-          } else {
-            locationInRange = false;
-            updateLocationStatus('error', `Di luar kawasan (${Math.round(dist)}m dari HQ, had: ${hqConfig.radius}m)`, '✗ Jauh');
-          }
-        } else {
-          // No HQ set, allow punch
-          locationInRange = true;
-          updateLocationStatus('ok', `Lokasi dikesan (Tiada had radius)`, '✓ OK');
-          document.getElementById('btn-capture').disabled = false;
-        }
-      },
-      err => {
-        updateLocationStatus('error', 'GPS gagal: ' + err.message, 'Error');
-        // Allow anyway if no HQ
-        if (!hqConfig.lat) {
-          document.getElementById('btn-capture').disabled = false;
-        }
-      },
-      { timeout: 10000, enableHighAccuracy: true }
+    const q = query(
+      collection(db,'attendance'),
+      where('workerId','==',currentWorker.id),
+      where('date','>=',monthStart),
+      where('date','<=',monthEnd),
+      orderBy('date','desc')
     );
+    const monthSnap = await getDocs(q);
+    let totalHours=0, totalDays=0;
+    const items = [];
+    monthSnap.forEach(d => {
+      const rec = d.data();
+      if(rec.totalMinutes){ totalHours+=rec.totalMinutes/60; totalDays++; }
+      items.push(rec);
+    });
+
+    const rate = currentWorker.rate||9;
+    document.getElementById('stat-days').textContent = totalDays;
+    document.getElementById('stat-hours').textContent = totalHours.toFixed(1)+'j';
+    document.getElementById('stat-earn').textContent = 'RM'+(totalHours*rate).toFixed(0);
+    renderHistory(items);
+  } catch(e) { console.error(e); }
+}
+
+function resetPunchUI() {
+  document.getElementById('punch-status-text').textContent = 'BELUM MASUK';
+  document.getElementById('punch-status-text').className = 'punch-status out';
+  document.getElementById('info-in').textContent = '—';
+  document.getElementById('info-out').textContent = '—';
+  document.getElementById('info-hours').textContent = '—';
+  document.getElementById('info-earn').textContent = 'RM —';
+  document.getElementById('badge-status').textContent = '⚪ Belum Punch In';
+  document.getElementById('badge-status').className = 'badge';
+  document.getElementById('badge-hours').textContent = '⏳ 0j 0m';
+  document.getElementById('btn-punch').className = 'btn-punch punch-in';
+  document.getElementById('btn-punch').innerHTML = '<span>📍</span> Punch In Sekarang';
+  document.getElementById('btn-punch').disabled = false;
+}
+
+function updatePunchUI(data) {
+  const rate = currentWorker.rate||9;
+  if(data.punchIn) {
+    const t = data.punchIn.toDate ? data.punchIn.toDate() : new Date(data.punchIn);
+    document.getElementById('info-in').textContent = formatTime12Short(t);
+    document.getElementById('punch-status-text').textContent = 'SUDAH MASUK';
+    document.getElementById('punch-status-text').className = 'punch-status in';
+    document.getElementById('badge-status').textContent = '🟢 Sedang Bekerja';
+    document.getElementById('badge-status').className = 'badge active';
+    document.getElementById('btn-punch').className = 'btn-punch punch-out';
+    document.getElementById('btn-punch').innerHTML = '<span>🚪</span> Punch Out';
   }
-
-  function updateLocationStatus(state, text, badge) {
-    const el = document.getElementById('location-status');
-    el.className = 'location-status ' + state;
-    el.querySelector('.loc-text').textContent = text;
-    el.querySelector('.loc-badge').textContent = badge;
+  if(data.punchOut) {
+    const t = data.punchOut.toDate ? data.punchOut.toDate() : new Date(data.punchOut);
+    document.getElementById('info-out').textContent = formatTime12Short(t);
+    document.getElementById('btn-punch').disabled = true;
+    document.getElementById('btn-punch').innerHTML = '<span>✅</span> Selesai Hari Ini';
+    document.getElementById('badge-status').textContent = '✅ Selesai';
+    document.getElementById('badge-status').className = 'badge done';
   }
-
-  window.closeCamera = function() {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(t => t.stop());
-      cameraStream = null;
-    }
-    clearInterval(overlayInterval);
-    document.getElementById('modal-camera').classList.remove('active');
-  };
-
-  window.capturePhoto = function() {
-    // Terus sahkan — tiada gambar disimpan, hanya timestamp + GPS
-    closeCamera();
-    confirmPunch();
-  };
-
-  window.confirmPunch = async function() {
-    showLoading('Menyimpan rekod...');
-
-    try {
-      const now = new Date();
-      const today = now.toISOString().split('T')[0];
-      const docId = `${currentWorker.id}_${today}`;
-      const docRef = doc(db, 'attendance', docId);
-
-      // Simpan timestamp + GPS sahaja (tanpa gambar)
-
-      const snap = await getDoc(docRef);
-
-      if (currentPunchType === 'in') {
-        await setDoc(docRef, {
-          workerId: currentWorker.id,
-          workerName: currentWorker.name,
-          workerSerial: currentWorker.serial,
-          date: today,
-          punchIn: Timestamp.fromDate(now),
-          punchInLat: currentLocation?.lat || null,
-          punchInLng: currentLocation?.lng || null,
-          punchInAccuracy: currentLocation?.accuracy || null,
-          createdAt: Timestamp.fromDate(now)
-        }, { merge: true });
-
-        // Update worker punchedIn status
-        await setDoc(doc(db, 'workers', currentWorker.id), { punchedIn: true }, { merge: true });
-        showToast('✅ Punch In berjaya! Selamat bekerja.', 'success');
-
-      } else {
-        const inData = snap.data();
-        const inTime = inData.punchIn.toDate();
-        const totalMinutes = Math.round((now - inTime) / 60000);
-
-        await setDoc(docRef, {
-          punchOut: Timestamp.fromDate(now),
-          punchOutLat: currentLocation?.lat || null,
-          punchOutLng: currentLocation?.lng || null,
-          punchOutAccuracy: currentLocation?.accuracy || null,
-          totalMinutes: totalMinutes
-        }, { merge: true });
-
-        await setDoc(doc(db, 'workers', currentWorker.id), { punchedIn: false }, { merge: true });
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        showToast(`✅ Punch Out! Kerja ${h}j ${m}m hari ini.`, 'success');
-      }
-
-      hideLoading();
-      await loadDashboard();
-      await loadWorkers();
-
-    } catch (e) {
-      hideLoading();
-      showToast('Ralat: ' + e.message, 'error');
-      console.error(e);
-    }
-  };
-
-  // ─── ADMIN ───
-  window.showAdminModal = function() {
-    document.getElementById('admin-login-section').style.display = 'block';
-    document.getElementById('admin-panel-section').style.display = 'none';
-    document.getElementById('admin-pass-input').value = '';
-    document.getElementById('modal-admin').classList.add('active');
-  };
-
-  window.closeAdminModal = function() {
-    document.getElementById('modal-admin').classList.remove('active');
-  };
-
-  window.adminLogin = function() {
-    const pass = document.getElementById('admin-pass-input').value;
-    if (pass === ADMIN_PASSWORD) {
-      document.getElementById('admin-login-section').style.display = 'none';
-      document.getElementById('admin-panel-section').style.display = 'block';
-      loadAdminWorkers();
-      loadHQConfig();
-    } else {
-      showToast('Kata laluan salah!', 'error');
-    }
-  };
-
-  async function loadHQConfig() {
-    try {
-      const cfgDoc = await getDoc(doc(db, 'config', 'hq'));
-      if (cfgDoc.exists()) {
-        const d = cfgDoc.data();
-        document.getElementById('hq-lat-input').value = d.lat || '';
-        document.getElementById('hq-lng-input').value = d.lng || '';
-        document.getElementById('hq-radius-input').value = d.radius || 100;
-      }
-    } catch (e) {}
+  if(data.totalMinutes) {
+    const h=Math.floor(data.totalMinutes/60), m=data.totalMinutes%60;
+    document.getElementById('info-hours').textContent = h+'j '+m+'m';
+    document.getElementById('info-earn').textContent = 'RM '+((data.totalMinutes/60)*rate).toFixed(2);
+    document.getElementById('badge-hours').textContent = '⏳ '+h+'j '+m+'m';
   }
+}
 
-  window.saveLocation = async function() {
-    const lat = parseFloat(document.getElementById('hq-lat-input').value);
-    const lng = parseFloat(document.getElementById('hq-lng-input').value);
-    const radius = parseInt(document.getElementById('hq-radius-input').value);
-
-    if (isNaN(lat) || isNaN(lng)) {
-      showToast('Sila masukkan koordinat yang sah!', 'error');
-      return;
-    }
-
-    showLoading('Menyimpan lokasi...');
-    try {
-      await setDoc(doc(db, 'config', 'hq'), { lat, lng, radius });
-      hqConfig = { lat, lng, radius };
-      hideLoading();
-      showToast('✅ Lokasi HQ disimpan!', 'success');
-    } catch (e) {
-      hideLoading();
-      showToast('Gagal simpan: ' + e.message, 'error');
-    }
-  };
-
-  async function loadAdminWorkers() {
-    try {
-      const snap = await getDocs(collection(db, 'workers'));
-      const list = document.getElementById('admin-workers-list');
-      if (snap.empty) {
-        list.innerHTML = `<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px;">Tiada pekerja lagi.</div>`;
-        return;
-      }
-      const workers = [];
-      snap.forEach(d => workers.push({ id: d.id, ...d.data() }));
-      workers.sort((a, b) => (a.serial || '').localeCompare(b.serial || ''));
-
-      list.innerHTML = workers.map(w => `
-        <div class="history-item" style="margin-bottom:8px;">
-          <div>
-            <div style="font-weight:700;font-size:14px;">${w.name}</div>
-            <div style="font-size:11px;color:var(--text3);font-family:var(--mono);">${w.serial} &nbsp;|&nbsp; RM${w.rate || 9}/jam</div>
+function renderHistory(items) {
+  const list = document.getElementById('history-list');
+  if(!items.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>Tiada rekod bulan ini.</p></div>`;
+    return;
+  }
+  list.innerHTML = items.slice(0,15).map(rec => {
+    const inTime = rec.punchIn ? (rec.punchIn.toDate?rec.punchIn.toDate():new Date(rec.punchIn)) : null;
+    const outTime = rec.punchOut ? (rec.punchOut.toDate?rec.punchOut.toDate():new Date(rec.punchOut)) : null;
+    const h = rec.totalMinutes ? Math.floor(rec.totalMinutes/60)+'j '+(rec.totalMinutes%60)+'m' : 'Belum keluar';
+    const dateObj = rec.date ? new Date(rec.date+'T00:00:00') : null;
+    const dateStr = dateObj ? `${HARI[dateObj.getDay()]}, ${dateObj.getDate()} ${BULAN[dateObj.getMonth()]}` : '—';
+    return `
+      <div class="history-item">
+        <div class="history-dot ${outTime?'':'incomplete'}"></div>
+        <div style="flex:1">
+          <div class="history-time">${dateStr}</div>
+          <div class="history-detail">
+            Masuk: ${inTime?formatTime12Short(inTime):'—'} &nbsp;·&nbsp;
+            Keluar: ${outTime?formatTime12Short(outTime):'—'} &nbsp;·&nbsp;
+            ${h}
           </div>
-          <div style="flex:1"></div>
-          <div class="badge ${w.punchedIn ? 'active' : ''}">${w.punchedIn ? '🟢 Masuk' : '⚪ Keluar'}</div>
+          ${rec.punchInLat?`<div class="history-coords">📍 ${rec.punchInLat.toFixed(5)}, ${rec.punchInLng.toFixed(5)}</div>`:''}
         </div>
-      `).join('');
-    } catch (e) {
-      console.error(e);
-    }
+      </div>`;
+  }).join('');
+}
+
+// ── PUNCH FLOW ──
+window.startPunch = async function() {
+  const today = new Date().toISOString().split('T')[0];
+  const snap = await getDoc(doc(db,'attendance',`${currentWorker.id}_${today}`));
+  currentPunchType = (snap.exists() && snap.data().punchIn) ? 'out' : 'in';
+  document.getElementById('camera-title').textContent = currentPunchType==='in' ? '📸 Pengesahan Punch In' : '📸 Pengesahan Punch Out';
+  openCamera();
+};
+
+// ── CAMERA ──
+async function openCamera() {
+  document.getElementById('modal-camera').classList.add('active');
+  document.getElementById('btn-capture').disabled = true;
+  currentLocation = null;
+  updateLocationStatus('checking','Memeriksa lokasi...','Checking');
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    document.getElementById('camera-video').srcObject = cameraStream;
+  } catch(e) {
+    showToast('Kamera tidak dapat diakses','error');
+    closeCamera(); return;
   }
 
-  window.addWorker = async function() {
-    const name = document.getElementById('worker-name-input').value.trim();
-    const ic = document.getElementById('worker-ic-input').value.trim();
-    const rate = parseFloat(document.getElementById('worker-rate-input').value) || 9;
+  overlayInterval = setInterval(()=>{
+    const now = new Date();
+    document.getElementById('overlay-datetime').textContent = formatTime12Short(now)+' — '+formatDateFull(now);
+  }, 1000);
 
-    if (!name || !ic || ic.length !== 12) {
-      showToast('Sila isi nama dan No. IC (12 digit)!', 'error');
-      return;
+  if(!navigator.geolocation) {
+    updateLocationStatus('error','GPS tidak disokong','Error');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      currentLocation = {lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:pos.coords.accuracy};
+      document.getElementById('overlay-coords').textContent =
+        `📍 ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`;
+
+      if(hqConfig.lat && hqConfig.lng) {
+        const dist = haversine(pos.coords.latitude, pos.coords.longitude, hqConfig.lat, hqConfig.lng);
+        if(dist <= hqConfig.radius) {
+          updateLocationStatus('ok',`Dalam kawasan (${Math.round(dist)}m dari HQ)`,'✓ OK');
+          document.getElementById('btn-capture').disabled = false;
+        } else {
+          updateLocationStatus('error',`Di luar kawasan — ${Math.round(dist)}m (Had: ${hqConfig.radius}m)`,'✗ Jauh');
+        }
+      } else {
+        updateLocationStatus('ok','Lokasi dikesan (Tiada had radius)','✓ OK');
+        document.getElementById('btn-capture').disabled = false;
+      }
+    },
+    err => {
+      updateLocationStatus('error','GPS gagal: '+err.message,'Error');
+      if(!hqConfig.lat) document.getElementById('btn-capture').disabled = false;
+    },
+    {timeout:10000, enableHighAccuracy:true}
+  );
+}
+
+function updateLocationStatus(state,text,badge) {
+  const el = document.getElementById('location-status');
+  el.className = 'location-status '+state;
+  el.querySelector('.loc-text').textContent = text;
+  el.querySelector('.loc-badge').textContent = badge;
+}
+
+window.closeCamera = function() {
+  if(cameraStream){ cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
+  clearInterval(overlayInterval);
+  document.getElementById('modal-camera').classList.remove('active');
+};
+
+window.capturePhoto = function() {
+  closeCamera();
+  confirmPunch();
+};
+
+async function confirmPunch() {
+  showLoading('Menyimpan rekod...');
+  try {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const docId = `${currentWorker.id}_${today}`;
+    const docRef = doc(db,'attendance',docId);
+    const snap = await getDoc(docRef);
+
+    if(currentPunchType==='in') {
+      await setDoc(docRef,{
+        workerId: currentWorker.id,
+        workerName: currentWorker.name,
+        workerSerial: currentWorker.serial,
+        date: today,
+        punchIn: Timestamp.fromDate(now),
+        punchInLat: currentLocation?.lat||null,
+        punchInLng: currentLocation?.lng||null,
+        punchInAccuracy: currentLocation?.accuracy||null,
+        createdAt: Timestamp.fromDate(now)
+      },{merge:true});
+      await setDoc(doc(db,'workers',currentWorker.id),{punchedIn:true},{merge:true});
+      showToast('✅ Punch In berjaya! Selamat bekerja.','success');
+
+    } else {
+      const inData = snap.data();
+      const inTime = inData.punchIn.toDate();
+      const totalMinutes = Math.round((now-inTime)/60000);
+      await setDoc(docRef,{
+        punchOut: Timestamp.fromDate(now),
+        punchOutLat: currentLocation?.lat||null,
+        punchOutLng: currentLocation?.lng||null,
+        punchOutAccuracy: currentLocation?.accuracy||null,
+        totalMinutes
+      },{merge:true});
+      await setDoc(doc(db,'workers',currentWorker.id),{punchedIn:false},{merge:true});
+      const h=Math.floor(totalMinutes/60), m=totalMinutes%60;
+      showToast(`✅ Punch Out! Kerja ${h}j ${m}m hari ini.`,'success');
     }
 
-    showLoading('Mendaftarkan pekerja...');
-    try {
-      // Get next serial
-      const snap = await getDocs(collection(db, 'workers'));
-      const nextNum = snap.size + 1;
-      const serial = 'PT' + String(nextNum).padStart(3, '0');
+    hideLoading();
+    await loadDashboard();
+    await loadWorkers();
+  } catch(e) {
+    hideLoading();
+    showToast('Ralat: '+e.message,'error');
+    console.error(e);
+  }
+}
 
-      await addDoc(collection(db, 'workers'), {
-        name, ic, rate, serial,
-        punchedIn: false,
-        createdAt: Timestamp.now()
-      });
+// ── LOGOUT ──
+window.logout = function() {
+  currentWorker=null; currentPunchType=null;
+  showScreen('home'); loadWorkers();
+};
 
-      document.getElementById('worker-name-input').value = '';
-      document.getElementById('worker-ic-input').value = '';
-      document.getElementById('worker-rate-input').value = '9';
+// ── ADMIN ──
+window.showAdminModal = function() {
+  document.getElementById('admin-login-section').style.display='block';
+  document.getElementById('admin-panel-section').style.display='none';
+  document.getElementById('admin-pass-input').value='';
+  document.getElementById('modal-admin').classList.add('active');
+};
+window.closeAdminModal = function() { document.getElementById('modal-admin').classList.remove('active'); };
 
-      hideLoading();
-      showToast(`✅ ${name} (${serial}) berjaya didaftarkan!`, 'success');
-      loadAdminWorkers();
-      loadWorkers();
+window.adminLogin = function() {
+  if(document.getElementById('admin-pass-input').value===ADMIN_PASSWORD) {
+    document.getElementById('admin-login-section').style.display='none';
+    document.getElementById('admin-panel-section').style.display='block';
+    switchAdminTab('pekerja');
+    loadAdminWorkers();
+    loadHQConfig();
+    populateSlipFilters();
+  } else {
+    showToast('Kata laluan salah!','error');
+  }
+};
 
-    } catch (e) {
-      hideLoading();
-      showToast('Gagal daftar: ' + e.message, 'error');
+window.switchAdminTab = function(tab) {
+  document.querySelectorAll('.admin-tab').forEach((t,i)=>{
+    const tabs=['pekerja','slip','tambah','lokasi'];
+    t.classList.toggle('active', tabs[i]===tab);
+  });
+  document.querySelectorAll('.admin-tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+};
+
+async function loadAdminWorkers() {
+  const snap = await getDocs(collection(db,'workers'));
+  const list = document.getElementById('admin-workers-list');
+  if(snap.empty){
+    list.innerHTML=`<div class="empty-state"><div class="empty-icon">👤</div><p>Tiada pekerja lagi.</p></div>`;
+    return;
+  }
+  const workers=[];
+  snap.forEach(d=>workers.push({id:d.id,...d.data()}));
+  workers.sort((a,b)=>(a.serial||'').localeCompare(b.serial||''));
+
+  list.innerHTML = workers.map(w=>{
+    const initials = w.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    const ci=(parseInt((w.serial||'PT001').slice(2))-1)%AVATAR_COLORS.length;
+    const [c1,c2]=AVATAR_COLORS[ci];
+    return `
+      <div class="admin-worker-item">
+        <div class="admin-worker-avatar" style="background:linear-gradient(135deg,${c1},${c2})">${initials}</div>
+        <div class="admin-worker-info">
+          <div class="admin-worker-name">${w.name}</div>
+          <div class="admin-worker-meta">${w.serial||'—'} &nbsp;·&nbsp; RM${w.rate||9}/jam &nbsp;·&nbsp; IC: ****${(w.ic||'').slice(-4)}</div>
+        </div>
+        <div class="badge ${w.punchedIn?'active':''}">${w.punchedIn?'🟢 Masuk':'⚪ Keluar'}</div>
+      </div>`;
+  }).join('');
+}
+
+async function loadHQConfig() {
+  try {
+    const cfgDoc = await getDoc(doc(db,'config','hq'));
+    if(cfgDoc.exists()){
+      const d=cfgDoc.data();
+      document.getElementById('hq-lat-input').value=d.lat||'';
+      document.getElementById('hq-lng-input').value=d.lng||'';
+      document.getElementById('hq-radius-input').value=d.radius||100;
     }
-  };
+  } catch(e){}
+}
 
-  // ─── LOGOUT ───
-  window.logout = function() {
-    currentWorker = null;
-    currentPunchType = null;
-    capturedImageData = null;
-    showScreen('home');
+window.saveLocation = async function() {
+  const lat=parseFloat(document.getElementById('hq-lat-input').value);
+  const lng=parseFloat(document.getElementById('hq-lng-input').value);
+  const radius=parseInt(document.getElementById('hq-radius-input').value);
+  if(isNaN(lat)||isNaN(lng)){showToast('Koordinat tidak sah!','error');return;}
+  showLoading('Menyimpan lokasi...');
+  try {
+    await setDoc(doc(db,'config','hq'),{lat,lng,radius});
+    hqConfig={lat,lng,radius};
+    hideLoading();
+    showToast('✅ Lokasi HQ disimpan!','success');
+  } catch(e){ hideLoading(); showToast('Gagal: '+e.message,'error'); }
+};
+
+window.useCurrentLocation = function() {
+  showToast('Mendapatkan lokasi semasa...','info');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('hq-lat-input').value = pos.coords.latitude.toFixed(6);
+    document.getElementById('hq-lng-input').value = pos.coords.longitude.toFixed(6);
+    showToast('📍 Koordinat diisi! Klik Simpan untuk sahkan.','success');
+  }, err=>{ showToast('GPS gagal: '+err.message,'error'); });
+};
+
+window.addWorker = async function() {
+  const name=document.getElementById('worker-name-input').value.trim();
+  const ic=document.getElementById('worker-ic-input').value.trim();
+  const rate=parseFloat(document.getElementById('worker-rate-input').value)||9;
+  if(!name||!ic||ic.length!==12){showToast('Sila isi nama dan IC (12 digit)!','error');return;}
+  showLoading('Mendaftarkan pekerja...');
+  try {
+    const snap=await getDocs(collection(db,'workers'));
+    const serial='PT'+String(snap.size+1).padStart(3,'0');
+    await addDoc(collection(db,'workers'),{name,ic,rate,serial,punchedIn:false,createdAt:Timestamp.now()});
+    document.getElementById('worker-name-input').value='';
+    document.getElementById('worker-ic-input').value='';
+    document.getElementById('worker-rate-input').value='9';
+    hideLoading();
+    showToast(`✅ ${name} (${serial}) berjaya didaftarkan!`,'success');
+    loadAdminWorkers();
     loadWorkers();
-  };
+    populateSlipFilters();
+  } catch(e){ hideLoading(); showToast('Gagal: '+e.message,'error'); }
+};
 
-  // ─── HAVERSINE ───
-  function haversine(lat1, lon1, lat2, lon2) {
-    const R = 6371000;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) ** 2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+// ── SLIP GAJI ──
+async function populateSlipFilters() {
+  try {
+    const snap = await getDocs(collection(db,'workers'));
+    const sel = document.getElementById('slip-worker-select');
+    sel.innerHTML = '<option value="">-- Pilih Pekerja --</option>';
+    snap.forEach(d=>{
+      const w=d.data();
+      sel.innerHTML += `<option value="${d.id}">${w.name} (${w.serial})</option>`;
+    });
+  } catch(e){}
+
+  // Populate months (last 12)
+  const msel = document.getElementById('slip-month-select');
+  msel.innerHTML='';
+  const now = new Date();
+  for(let i=0;i<12;i++){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = `${BULAN[d.getMonth()]} ${d.getFullYear()}`;
+    msel.innerHTML += `<option value="${val}">${label}</option>`;
   }
+
+  document.getElementById('slip-worker-select').onchange = previewSlip;
+  document.getElementById('slip-month-select').onchange = previewSlip;
+}
+
+async function previewSlip() {
+  const workerId = document.getElementById('slip-worker-select').value;
+  const month = document.getElementById('slip-month-select').value;
+  const preview = document.getElementById('slip-preview');
+  const btnGen = document.getElementById('btn-generate');
+
+  if(!workerId||!month){
+    preview.innerHTML=`<div class="empty-state"><div class="empty-icon">🧾</div><p>Pilih pekerja dan bulan.</p></div>`;
+    btnGen.style.display='none';
+    return;
+  }
+
+  showLoading('Memuatkan data...');
+  try {
+    const workerDoc = await getDoc(doc(db,'workers',workerId));
+    const worker = workerDoc.data();
+    const rate = worker.rate||9;
+
+    const monthStart = month+'-01';
+    const monthEnd = month+'-31';
+    const q = query(
+      collection(db,'attendance'),
+      where('workerId','==',workerId),
+      where('date','>=',monthStart),
+      where('date','<=',monthEnd),
+      orderBy('date','asc')
+    );
+    const snap = await getDocs(q);
+    const records=[];
+    snap.forEach(d=>records.push(d.data()));
+
+    const totalMinutes = records.reduce((a,r)=>a+(r.totalMinutes||0),0);
+    const totalHours = totalMinutes/60;
+    const totalDays = records.filter(r=>r.punchIn).length;
+    const totalEarn = totalHours*rate;
+    const [yr,mn] = month.split('-');
+    const monthLabel = BULAN[parseInt(mn)-1]+' '+yr;
+
+    const rowsHtml = records.map(r=>{
+      const inT = r.punchIn?(r.punchIn.toDate?r.punchIn.toDate():new Date(r.punchIn)):null;
+      const outT = r.punchOut?(r.punchOut.toDate?r.punchOut.toDate():new Date(r.punchOut)):null;
+      const h = r.totalMinutes?Math.floor(r.totalMinutes/60)+'j '+(r.totalMinutes%60)+'m':'—';
+      const dateObj = new Date(r.date+'T00:00:00');
+      const earn = r.totalMinutes?(r.totalMinutes/60*rate).toFixed(2):'—';
+      return `<div class="slip-row">
+        <span class="slip-row-label">${HARI[dateObj.getDay()]}, ${dateObj.getDate()} ${BULAN[dateObj.getMonth()]}</span>
+        <span class="slip-row-value">${inT?formatTime12Short(inT):'—'} - ${outT?formatTime12Short(outT):'—'} · ${h} · RM${earn}</span>
+      </div>`;
+    }).join('');
+
+    preview.innerHTML = `
+      <div class="slip-card">
+        <div class="slip-header">
+          <div>
+            <div class="slip-header-title">SLIP GAJI — ${monthLabel}</div>
+            <div class="slip-header-sub">PartTime Pro Sistem Kehadiran</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="slip-header-title">${worker.name}</div>
+            <div class="slip-header-sub">${worker.serial} · RM${rate}/jam</div>
+          </div>
+        </div>
+        <div class="slip-body">
+          ${rowsHtml||'<div style="color:var(--text3);text-align:center;padding:16px;font-size:13px;">Tiada rekod untuk bulan ini.</div>'}
+          <div class="slip-total">
+            <div>
+              <div class="slip-total-label">Jumlah Gaji</div>
+              <div style="font-size:11px;color:var(--text2);">${totalDays} hari · ${totalHours.toFixed(1)} jam · RM${rate}/jam</div>
+            </div>
+            <div class="slip-total-value">RM ${totalEarn.toFixed(2)}</div>
+          </div>
+        </div>
+      </div>`;
+
+    btnGen.style.display = records.length ? 'flex' : 'none';
+    hideLoading();
+  } catch(e){ hideLoading(); showToast('Ralat: '+e.message,'error'); }
+}
+
+window.generateSlip = function() {
+  showToast('🚧 Generate PDF — akan dibina dalam Fasa 3!','info');
+};
+
+// ── HAVERSINE ──
+function haversine(lat1,lon1,lat2,lon2) {
+  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
 
 </script>
 </body>
